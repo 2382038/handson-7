@@ -1,18 +1,41 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { SongsService } from './songs.service';
+import { Injectable } from '@nestjs/common';
+import { Songs } from './songs.entity';
+import { CreateSongDTO } from './create-song.dto';
 
-describe('SongsService', () => {
-  let service: SongsService;
+@Injectable()
+export class SongsService {
+  private currentId: number = 0;
+  private songs: Songs[] = [];
 
-  beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
-      providers: [SongsService],
-    }).compile();
+  findAll(): Songs[] {
+    return this.songs;
+  }
 
-    service = module.get<SongsService>(SongsService);
-  });
+  findOne(id: number): Songs[] {
+    return this.songs.filter((song) => song.id === id);
+  }
 
-  it('should be defined', () => {
-    expect(service).toBeDefined();
-  });
-});
+  delete(id: number) {
+    this.songs = this.songs.filter((song) => song.id !== id);
+  }
+
+  create(createSongDTO: CreateSongDTO) {
+    const song: Songs = {
+      id: this.currentId,
+      title: createSongDTO.title,
+      artist: createSongDTO.artist,
+    };
+    
+    this.currentId++;
+    this.songs.push(song);
+  }
+
+  updateOne(id: number, createSongDTO: CreateSongDTO) {
+    this.songs.forEach((song) => {
+      if (song.id === id) {
+        song.title = createSongDTO.title;
+        song.artist = createSongDTO.artist;
+      }
+    });
+  }
+}
